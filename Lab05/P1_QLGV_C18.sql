@@ -1,0 +1,23 @@
+-- BAI TAP 2 PHAN I CAU 18 QUANLYGIAOVU
+CREATE TRIGGER tg_check_dieukien ON DIEUKIEN
+AFTER INSERT, UPDATE
+AS 
+BEGIN 
+	DECLARE @MaMH VARCHAR(10), @MaMH_truoc VARCHAR(10)
+
+	SELECT @MaMH = MAMH, @MaMH_truoc = MAMH_TRUOC FROM INSERTED 
+	IF(@MaMH = @MaMH_truoc)
+	BEGIN 
+		RAISERROR('Gia tri mamh va mamh truoc khon duoc giong nhau', 16, 1);
+		ROLLBACK TRANSACTION
+	END
+	ELSE IF(EXISTS(SELECT * FROM DIEUKIEN WHERE MAMH = @MaMH_truoc AND MAMH_TRUOC = @MaMH))
+	BEGIN 
+		PRINT('Hai gia tri ton tai cung bo')
+		ROLLBACK TRANSACTION
+	END
+	ELSE 
+	BEGIN
+		PRINT('Them moi dieu kien thanh cong')
+	END
+END

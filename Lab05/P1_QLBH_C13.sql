@@ -1,0 +1,32 @@
+-- BAI TAP 1 - PHAN I CAU 13 QUANLYBANHANG
+
+CREATE TRIGGER trg_trgi_ttt ON CTHD
+FOR INSERT
+AS
+BEGIN
+	DECLARE @TriGia money, @SoLuong int, @SoHD int, @MaSP char(4)
+	SELECT @SoLuong = SL, @SoHD = SOHD, @MaSP = MASP
+	FROM INSERTED
+	SET @TriGia = @SoLuong * (SELECT GIA FROM SANPHAM WHERE MASP = @MaSP)
+	DECLARE cur_cthd CURSOR
+	FOR
+		SELECT MASP, SL
+		FROM CTHD
+		WHERE SOHD = @SoHD
+
+	OPEN cur_cthd
+	FETCH NEXT FROM cur_cthd
+	INTO @MaSP, @SoLuong
+
+	WHILE (@@FETCH_STATUS = 0)
+	BEGIN 
+		SET @TriGia = @TriGia + @SoLuong * (SELECT GIA FROM SANPHAM WHERE MASP = @MaSP)
+		FETCH NEXT FROM cur_cthd
+		INTO @MaSP, @SoLuong
+	END
+
+	CLOSE cur_cthd
+	DEALLOCATE cur_cthd
+
+	UPDATE HOADON SET TRIGIA = @TriGia WHERE SOHD = @SoHD
+END
