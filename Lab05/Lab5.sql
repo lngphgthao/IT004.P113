@@ -688,5 +688,3 @@ BEGIN
         SELECT DISTINCT MaDuAn FROM DELETED
     );
 END;
-
-
